@@ -5,7 +5,6 @@ const fs = require('fs');
 import dotenv from 'dotenv';
 
 dotenv.config();
-const server_id = '975417617160491119';
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES],
@@ -31,7 +30,7 @@ client.once('ready', async () => {
       data.push(commands[commandName].data);
     }
   }
-  await client.application.commands.set(data, server_id);
+  await client.application.commands.set(data, process.env.SERVER_ID);
   console.log('Ready!');
   console.log(client.user?.tag);
 });
