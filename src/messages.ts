@@ -15,10 +15,26 @@ export const toDoFirst = new MessageEmbed()
     チャンネルのテスト`
   );
 
-  export const howToEnjoy = new MessageEmbed()
+export const howToEnjoy = new MessageEmbed()
+  .setColor('#0055ff')
+  .setTitle('サーバの楽しみ方 / How to enjoy our server')
+  .setDescription(
+    `<#975419102158000188>
+    チャンネルのテスト`
+  );
+
+export function errorEmbed(message: string) {
+  const emb = new MessageEmbed()
+    .setColor('#ff2200')
+    .setTitle('Error!')
+    .setDescription(message);
+  return emb;
+}
+
+export function infoEmbed(title: string, message: string) {
+  const emb = new MessageEmbed()
     .setColor('#0055ff')
-    .setTitle('サーバの楽しみ方 / How to enjoy our server')
-    .setDescription(
-      `<#975419102158000188>
-      チャンネルのテスト`
-    );
+    .setTitle(title)
+    .setDescription(message);
+  return emb;
+}
