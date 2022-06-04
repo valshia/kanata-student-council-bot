@@ -1,11 +1,9 @@
 const { MessageEmbed } = require('discord.js');
 
-
 export const messages = {
   hello: 'へい！こんかなた〜！',
   test: 'テスト',
 };
-
 
 export const toDoFirst = new MessageEmbed()
   .setColor('#0055ff')
