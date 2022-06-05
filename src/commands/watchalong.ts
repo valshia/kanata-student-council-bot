@@ -20,7 +20,7 @@ module.exports = {
     }]
   },
   async execute(interaction: CommandInteraction) {
-    notifyStreamEndSlashCommandHandler(interaction);
+    return notifyStreamEndSlashCommandHandler(interaction);
   },
 };
 
@@ -30,10 +30,10 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   let pinMessage;
 
   if (url === null) {
-    interaction.reply({
+    await interaction.reply({
       embeds: [errorEmbed('`url` slash command parameter is missing. This should not happen if the bot is properly configured.')]
     });
-    return;
+    return
   }
 
   const videoInfo = await youtube.videos.get(url);
@@ -45,14 +45,14 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
     if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
-      interaction.reply({
+      await interaction.reply({
           embeds: [infoEmbed(
           `Let's watchalong!`,
           `I will notify you when this stream ends. \n この配信が終わったら通知します。\n ${url}`
         )]
       });
       pinMessage = await interaction.channel.send(`We're watching: ${url}`);
-      pinMessage.pin();
+      await pinMessage.pin();
     }
 
     await watchForStreamEnd(url);
@@ -60,7 +60,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
     if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
-      interaction.channel.send({
+      await interaction.channel.send({
           embeds: [infoEmbed(
           `Stream over! 配信が終わりました！`,
           `Please set another stream or move to another VC. \n 他の配信を指定するか、他のVCに移動してください。`
@@ -71,7 +71,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
       } else if (pinMessage === undefined) {
         console.error('Tried to unpin an undefined message');
       } else {
-        pinMessage.unpin();
+        await pinMessage.unpin();
       }
     }
   }
