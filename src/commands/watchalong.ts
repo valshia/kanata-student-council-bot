@@ -37,12 +37,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   }
 
   const videoInfo = await youtube.videos.get(url);
-  if (videoInfo instanceof Error) {
-    interaction.reply({
-      embeds: [errorEmbed('An error occurred trying to detect the initial status of this stream.')]
-    });
-    console.error(videoInfo);
-  } else if (videoInfo.snippet.liveBroadcastContent === 'none') {
+  if (videoInfo.snippet.liveBroadcastContent === 'none') {
     interaction.reply({
       embeds: [errorEmbed('This stream is already over or this is not stream! \n 指定されたURLの配信は既に終わっているか、配信ではありません！')]
     });
