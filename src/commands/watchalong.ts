@@ -55,14 +55,9 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
       pinMessage.pin();
     }
 
-    const watcherResult = await watchForStreamEnd(url);
+    await watchForStreamEnd(url);
 
-    if (watcherResult instanceof Error) {
-      interaction.reply({
-        embeds: [errorEmbed(`An error occurred trying to detect end of stream ${url}. It may or may not have ended already.`)]
-      });
-      console.error(watcherResult);
-    } else if (interaction.channel === null) {
+    if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
       interaction.channel.send({
@@ -82,7 +77,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   }
 };
 
-const watchForStreamEnd = async (url: string): Promise<any> => {
+const watchForStreamEnd = async (url: string): Promise<void> => {
   const videoInfo = await youtube.videos.get(url);
   if (videoInfo.snippet.liveBroadcastContent === 'none') {
     return;
