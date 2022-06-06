@@ -1,8 +1,7 @@
 import { CommandInteraction } from 'discord.js';
+import { errorEmbed, infoEmbed } from '../messages';
 import Youtube from 'youtube.ts';
 import dotenv from 'dotenv';
-import { errorEmbed, infoEmbed } from '../messages';
-
 
 dotenv.config();
 const youtube = new Youtube(process.env.GOOGLE_API_KEY);
@@ -24,7 +23,6 @@ module.exports = {
   },
 };
 
-
 const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteraction): Promise<void> => {
   url = interaction.options.getString('url');
   let pinMessage;
@@ -37,18 +35,27 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   }
 
   const videoInfo = await youtube.videos.get(url);
-  if (videoInfo.snippet.liveBroadcastContent === 'none') {
+  if (videoInfo === undefined) {
     interaction.reply({
-      embeds: [errorEmbed('This stream is already over or this is not stream! \n 指定されたURLの配信は既に終わっているか、配信ではありません！')]
+      embeds: [errorEmbed('Cannot get stream info. Did you set stream URL?\n配信の情報が取得できません。配信のURLを指定しましたか？')]
     });
-  } else {
+    console.error(videoInfo);
+  } else if (videoInfo.snippet.liveBroadcastContent === 'none') {
+    interaction.reply({
+      embeds: [errorEmbed('This stream is already over or this is not stream.\n指定されたURLの配信は既に終わっているか、配信ではありません。')]
+    });
+  } else if (videoInfo.snippet.liveBroadcastContent === undefined) {
+    interaction.reply({
+      embeds: [errorEmbed('Invalid URL.\n無効なURLです。')]
+    });
+  } else if (videoInfo.snippet.liveBroadcastContent === 'live') {
     if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
       await interaction.reply({
           embeds: [infoEmbed(
           `Let's watchalong!`,
-          `I will notify you when this stream ends. \n この配信が終わったら通知します。\n ${url}`
+          `I will notify you when this stream ends.\nこの配信が終わったら通知します。\n${url}`
         )]
       });
       pinMessage = await interaction.channel.send(`We're watching: ${url}`);
@@ -63,7 +70,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
       await interaction.channel.send({
           embeds: [infoEmbed(
           `Stream over! 配信が終わりました！`,
-          `Please set another stream or move to another VC. \n 他の配信を指定するか、他のVCに移動してください。`
+          `Please set another stream or move to another VC.\n他の配信を指定するか、他のVCに移動してください。`
         )]
       });
       if (pinMessage === null) {
@@ -74,6 +81,9 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
         await pinMessage.unpin();
       }
     }
+  } else {
+    interaction.reply({ embeds: [errorEmbed('Unexpected Error')] });
+    console.error(videoInfo);
   }
 };
 
@@ -89,8 +99,3 @@ const watchForStreamEnd = async (url: string): Promise<void> => {
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export function getWatchingStreamUrl() {
-  console.log('getWatchingStreamUrl');
-  return url;
-}
