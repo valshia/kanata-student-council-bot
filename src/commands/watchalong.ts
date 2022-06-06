@@ -19,7 +19,7 @@ module.exports = {
     }]
   },
   async execute(interaction: CommandInteraction) {
-    notifyStreamEndSlashCommandHandler(interaction);
+    return notifyStreamEndSlashCommandHandler(interaction);
   },
 };
 
@@ -28,24 +28,16 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   let pinMessage;
 
   if (url === null) {
-    interaction.reply({
+    await interaction.reply({
       embeds: [errorEmbed('`url` slash command parameter is missing. This should not happen if the bot is properly configured.')]
     });
-    return;
+    return
   }
 
-  const videoInfo = await youtube.videos.get(url)
-  .catch((error) => {
-    console.error(error);
-  });
+  const videoInfo = await youtube.videos.get(url);
   if (videoInfo === undefined) {
     interaction.reply({
       embeds: [errorEmbed('Cannot get stream info. Did you set stream URL?\n配信の情報が取得できません。配信のURLを指定しましたか？')]
-    });
-    console.error(videoInfo);
-  } else if (videoInfo instanceof Error) {
-    interaction.reply({
-      embeds: [errorEmbed('An error occurred trying to detect the initial status of this stream.\n配信の情報を取得する際にエラーが発生しました。')]
     });
     console.error(videoInfo);
   } else if (videoInfo.snippet.liveBroadcastContent === 'none') {
@@ -60,27 +52,22 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
     if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
-      interaction.reply({
+      await interaction.reply({
           embeds: [infoEmbed(
           `Let's watchalong!`,
           `I will notify you when this stream ends.\nこの配信が終わったら通知します。\n${url}`
         )]
       });
       pinMessage = await interaction.channel.send(`We're watching: ${url}`);
-      pinMessage.pin();
+      await pinMessage.pin();
     }
 
-    const watcherResult = await watchForStreamEnd(url);
+    await watchForStreamEnd(url);
 
-    if (watcherResult instanceof Error) {
-      interaction.reply({
-        embeds: [errorEmbed(`An error occurred trying to detect end of stream ${url}. It may or may not have ended already.`)]
-      });
-      console.error(watcherResult);
-    } else if (interaction.channel === null) {
+    if (interaction.channel === null) {
       console.error('Tried to send a message for a channel that no longer exists.');
     } else {
-      interaction.channel.send({
+      await interaction.channel.send({
           embeds: [infoEmbed(
           `Stream over! 配信が終わりました！`,
           `Please set another stream or move to another VC.\n他の配信を指定するか、他のVCに移動してください。`
@@ -91,7 +78,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
       } else if (pinMessage === undefined) {
         console.error('Tried to unpin an undefined message');
       } else {
-        pinMessage.unpin();
+        await pinMessage.unpin();
       }
     }
   } else {
@@ -100,7 +87,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
   }
 };
 
-const watchForStreamEnd = async (url: string): Promise<any> => {
+const watchForStreamEnd = async (url: string): Promise<void> => {
   const videoInfo = await youtube.videos.get(url);
   if (videoInfo.snippet.liveBroadcastContent === 'none') {
     return;
