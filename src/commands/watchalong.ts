@@ -10,7 +10,7 @@ let url: string|null;
 module.exports = {
   data: {
     name: 'watchalong',
-    description: 'Set a YouTube stream URL and it will be pinned. When the stream is over, notify and unpinned.',
+    description: 'Set a YouTube stream URL and it will be pinned. When the stream is over, notify and unpin.',
     options: [{
       type: 'STRING',
       name: 'url',
@@ -31,7 +31,7 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
     await interaction.reply({
       embeds: [errorEmbed('`url` slash command parameter is missing. This should not happen if the bot is properly configured.')]
     });
-    return
+    return;
   }
 
   const videoInfo = await youtube.videos.get(url);

@@ -1,25 +1,23 @@
-import { toDoFirst, howToEnjoy } from './messages';
+import { errorEmbed } from './messages';
+import { CommandInteraction } from 'discord.js';
+import dotenv from 'dotenv';
 
 const { Client, Intents } = require('discord.js');
 const fs = require('fs');
-import dotenv from 'dotenv';
 
 dotenv.config();
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES],
 });
+module.exports = client;
 
-/*
-function printType(x: any) {
-  console.log(`${typeof(x)} ${Object.prototype.toString.call(x)}`);
-}
-*/
 
-var commands: { [key: string]: any } = {};
+let commands: { [key: string]: any } = {};
 const commandFiles = fs.readdirSync('./src/commands/').filter((file: string) => file.endsWith('.ts'));
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
+  console.log(command);
   commands[command.data.name] = command;
 }
 
@@ -35,7 +33,7 @@ client.once('ready', async () => {
   console.log(client.user?.tag);
 });
 
-client.on('interactionCreate', async (interaction: any) => {
+client.on('interactionCreate', async (interaction: CommandInteraction) => {
   if (!interaction.isCommand()) {
     return;
   }
@@ -45,26 +43,11 @@ client.on('interactionCreate', async (interaction: any) => {
   } catch (error) {
     console.error(error);
     await interaction.reply({
-      content: 'smth wrong',
+      embeds: [errorEmbed(
+        'Something wrong... Could you try again or contact <@${process.env.ADMIN_ID}> ? ' +
+        '何かがおかしいです……もう一度試していただくか、 <@${process.env.ADMIN_ID}> に連絡ください。'
+      )],
       ephemeral: true,
-    });
-  }
-});
-
-client.on('interactionCreate', async (interaction: any) => {
-  if (!interaction.isButton()) {
-    return;
-  }
-  console.log(interaction);
-  if (interaction.customId === 'zeroFirst') {
-    await interaction.reply({
-      embeds: [toDoFirst],
-      ephemeral: true
-    });
-  } else if (interaction.customId === 'oneHowToEnjoy') {
-    await interaction.reply({
-      embeds: [howToEnjoy],
-      ephemeral: true
     });
   }
 });
