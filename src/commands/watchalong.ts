@@ -77,6 +77,10 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
         console.error('Tried to unpin a message that no longer exists.');
       } else if (pinMessage === undefined) {
         console.error('Tried to unpin an undefined message');
+      } else if (pinMessage.pinned === false) {
+        console.error('Tried to unpin a message that already has been unpinned');
+      } else if (pinMessage.editable === false) {
+        console.error('Tried to unpin a message that uneditable (seems to be removed already)');
       } else {
         await pinMessage.unpin();
       }
@@ -88,8 +92,9 @@ const notifyStreamEndSlashCommandHandler = async (interaction: CommandInteractio
 };
 
 const watchForStreamEnd = async (url: string): Promise<void> => {
+  // await sleep(10000); // for debug
   const videoInfo = await youtube.videos.get(url);
-  if (videoInfo.snippet.liveBroadcastContent === 'none') {
+  if (videoInfo.snippet.liveBroadcastContent === 'none') { // use !== when debugging
     return;
   } else {
     await sleep(10000);
