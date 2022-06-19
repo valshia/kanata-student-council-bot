@@ -8,7 +8,8 @@ const fs = require('fs');
 dotenv.config();
 
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES,
+            Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
 });
 module.exports = client;
 
@@ -44,8 +45,8 @@ client.on('interactionCreate', async (interaction: CommandInteraction) => {
     console.error(error);
     await interaction.reply({
       embeds: [errorEmbed(
-        'Something wrong... Could you try again or contact <@${process.env.ADMIN_ID}> ? ' +
-        '何かがおかしいです……もう一度試していただくか、 <@${process.env.ADMIN_ID}> に連絡ください。'
+        `Something wrong... Could you try again or contact <@${process.env.ADMIN_ID}> ?\n` +
+        `何かがおかしいです……もう一度試していただくか、 <@${process.env.ADMIN_ID}> に連絡ください。`
       )],
       ephemeral: true,
     });
