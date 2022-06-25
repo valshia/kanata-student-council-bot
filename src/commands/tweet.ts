@@ -46,7 +46,7 @@ function getMods() {
 module.exports = {
   data: {
     name: 'tweet',
-    description: 'tweet test implement',
+    description: 'Ask mods to approve your tweet. If a majority approve it, will be tweeted on our account.',
     options: [{
       type: 'STRING',
       name: 'tweet',
