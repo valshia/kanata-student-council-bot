@@ -46,8 +46,8 @@ client.on('interactionCreate', async (interaction: CommandInteraction) => {
     console.error(error);
     await interaction.reply({
       embeds: [errorEmbed(
-        `Something wrong... Could you try again or contact <@${process.env.ADMIN_ID}> ?\n` +
-        `何かがおかしいです……もう一度試していただくか、 <@${process.env.ADMIN_ID}> に連絡ください。`
+        `Something wrong... Could you try again or contact <@${process.env.BOT_ADMIN_ID}> ?\n` +
+        `何かがおかしいです……もう一度試していただくか、 <@${process.env.BOT_ADMIN_ID}> に連絡ください。`
       )],
       ephemeral: true,
     });
