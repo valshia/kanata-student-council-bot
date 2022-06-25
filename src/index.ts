@@ -1,6 +1,9 @@
 import { errorEmbed } from './messages';
 import { CommandInteraction } from 'discord.js';
 import dotenv from 'dotenv';
+import { CommandInteraction } from 'discord.js';
+import * as messagewatcher from './messagewatcher';
+import { errorEmbed } from './messages';
 
 const { Client, Intents } = require('discord.js');
 const fs = require('fs');

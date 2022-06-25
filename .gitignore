@@ -132,3 +132,4 @@ dist
 build/
 
 src/guide_messages.ts
+src/blacklist.ts
