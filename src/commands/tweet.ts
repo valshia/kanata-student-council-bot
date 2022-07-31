@@ -34,7 +34,9 @@ function getMods() {
         (role: any) => role.id === process.env.MOD_ROLE_ID
       )
     ).map((member: any) => member.id);
-    mods.push(process.env.ADMIN_ID);
+    if (mods.includes(process.env.ADMIN_ID) === false) {
+      mods.push(process.env.ADMIN_ID);
+    }
     mods.push(process.env.SELF_ID);
     return mods;
   } else {
@@ -101,35 +103,46 @@ module.exports = {
       await interaction.reply({
         embeds: [infoEmbed(
           'Your tweet is pending approval. ツイートは承認待ちです。',
-          `Please wait for approval by moderators. モデレータの承認をお待ち下さい。 \nTweet: ${tweetText}`,
+          `Please wait for approval by moderators. モデレータの承認をお待ち下さい。\nTweet: ${tweetText}\nNum of approvals required: ${(mods.length / 2)}`,
         )],
         fetchReply: true
       })
     ) as typeof Message;
 
-    messageReply.react('👍');
+    messageReply.react('👍').then(() => messageReply.react('👎'));
+
     processingFlag = true;
 
     const filter = (reaction: MessageReaction, user: User) => {
       if (reaction.emoji.name !== null) {
-        return reaction.emoji.name === '👍' && mods.includes(user.id);
+        return ['👍', '👎'].includes(reaction.emoji.name) && mods.includes(user.id);
       } else {
         return false;
       }
     };
 
-    messageReply.awaitReactions({ filter, maxUsers: (mods.length / 2), errors: ['time'] }) //
-      //.then((collected: any) => {
-      //  const reaction = collected.first();
-      //  console.log(reaction);
+    messageReply.awaitReactions({ filter, maxUsers: (mods.length / 2) + 1, errors: ['time'] })
       .then(() => {
-        interaction.followUp({
-          embeds: [infoEmbed(
-            'Your tweet has been approved. ツイートは承認されました。',
-            `Tweet it? ツイートしますか？\nTweet: ${tweetText}`,
-          )],
-          components: [row],
-        });
+        const numUpVotes = messageReply.reactions.cache.get('👍').count;
+        const numDownBotes = messageReply.reactions.cache.get('👎').count;
+        if (numUpVotes > numDownBotes) {
+          interaction.followUp({
+            embeds: [infoEmbed(
+              'Your tweet has been approved. ツイートは承認されました。',
+              `Tweet it? ツイートしますか？\nTweet: ${tweetText}`,
+            )],
+            components: [row],
+          });
+        } else {
+          interaction.followUp({
+            embeds: [infoEmbed(
+              'Your tweet was not approved. ツイートは承認されませんでした。',
+              `Tweet: ${tweetText}`,
+            )],
+          });
+          processingFlag = false;
+          return;
+        }
       })
       .catch(() => {
         console.log('awaitReactions timeout');
