@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import { CommandInteraction } from 'discord.js';
-import * as messagewatcher from './messagewatcher';
 import { errorEmbed } from './messages';
 
 const { Client, Intents } = require('discord.js');
@@ -53,7 +52,5 @@ client.on('interactionCreate', async (interaction: CommandInteraction) => {
     });
   }
 });
-
-client.on(messagewatcher.eventName, messagewatcher.event);
 
 client.login(process.env.TOKEN);
